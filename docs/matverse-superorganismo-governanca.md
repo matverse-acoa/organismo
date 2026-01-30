@@ -573,3 +573,59 @@ Intellectual Property, Cryptography, Watermarking, Blockchain, Scientific Publis
 - Implementar **módulo IP-Protection funcional (watermark + ledger)**
 - Criar **SDK público para prova de autoria**
 - Produzir **RFC técnico oficial do MatVerse (Arquitetura + IP)**
+
+---
+
+## 13. Estado Operacional — Resumo Cru (30 jan 2026, 03:16 BRT)
+
+### 13.1 Status Atual Validado
+
+- `matverse_metrics_to_10_pack.zip` executável sem edição.
+- Comando base: `python first_breath.py --input-dir ... --output-dir ...`.
+- Saídas comprovadas: MerkleRoot determinístico, CVaR95, replay-manifest e report assinável.
+- Psi médio real dos 5 textos avaliados: **0,282** (ψIndex = 2824).
+- CVaR95(loss) = **0,738** (alto devido a textos curtos e repetição de termos técnicos).
+- Replay confirmado: `computed_root == report_root` bit-a-bit.
+
+### 13.2 Lacunas Para “10/10”
+
+1. **Θ (Theta) não-None**  
+   - O código original define `thetaScore = None`; o executor Ω exige Θ para decisão.  
+   - Solução imediata: **Θ = tempo_total / bytes_ingestão** (determinístico) e gravar no receipt.
+2. **txHash real**  
+   - Rodar `--anchor` com RPC + contrato Sepolia (chain-id 11155111) e preencher `txHash` no receipt.  
+   - Correção crítica: em `maquina.txt` aparece `rpc.sekolia.org` (typo). **Correto:** `rpc.sepolia.org`.
+3. **Assinatura PQC**  
+   - Anexar `pqcSig` (ex.: ML-DSA) sobre o receipt canônico; sem isso `poleVerified` fica `False`.
+4. **DOI Zenodo**  
+   - Zipar (P1 + P2 + assinatura) e publicar; Zenodo gera DOI imutável que fecha a prova P3.
+
+### 13.3 Próxima Ação Única (Linha de Comando)
+
+```bash
+# Instala o que falta
+pip install web3 pqcrypto  # ou liboqs-python se quiser ML-DSA nativo
+
+# Deploy do contrato (uma vez)
+cd evm && npm i && npx hardhat run scripts/deploy.js --network sepolia
+
+export MATVERSE_RPC=https://rpc.sepolia.org
+export MATVERSE_CONTRACT=<endereço-que-voltar>
+export MATVERSE_PRIVATE_KEY=<sua-chave-sepolia>
+
+# Roda tudo de uma vez (theta + anchor + assinatura)
+python first_breath.py \
+  --input-dir inputs/real_world \
+  --output-dir output \
+  --anchor --chain-id 11155111
+
+python pqc_sign_mldsa.py output/first_breath_report.json  # gera pqcSig
+```
+
+### 13.4 Resultado Esperado Após Execução
+
+- MerkleRoot público
+- txHash on-chain com evento Anchored
+- assinatura PQC anexada
+- receipt com todos os campos ≠ None
+- replay possível por qualquer terceiro
