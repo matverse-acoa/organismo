@@ -629,6 +629,8 @@ python first_breath.py \
 python pqc_sign_mldsa.py output/first_breath_report.json  # gera pqcSig
 ```
 
+Para automatizar o fluxo com validações básicas de ambiente, use `scripts/run_matverse_10_10.sh` (exige `MATVERSE_RPC`, `MATVERSE_CONTRACT` e `MATVERSE_PRIVATE_KEY` definidos). 
+
 ### 13.5 Resultado Esperado Após Execução
 
 - MerkleRoot público
