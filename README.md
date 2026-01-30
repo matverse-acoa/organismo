@@ -573,6 +573,7 @@ Intellectual Property, Cryptography, Watermarking, Blockchain, Scientific Publis
 - Implementar **módulo IP-Protection funcional (watermark + ledger)**
 - Criar **SDK público para prova de autoria**
 - Produzir **RFC técnico oficial do MatVerse (Arquitetura + IP)**
+- Adicionar **dashboard de métricas em tempo real** para Ψ, Ω, α e CVaR
 
 ---
 

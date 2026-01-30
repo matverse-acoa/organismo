@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MatVerse | Dashboard de Métricas</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div>
+          <p class="eyebrow">MatVerse Gap Resolution Package</p>
+          <h1>Dashboard vivo de Ψ, Ω, α e CVaR</h1>
+          <p class="subtitle">
+            Monitoramento em tempo real da coerência, viabilidade, antifragilidade e risco de cauda.
+          </p>
+        </div>
+        <div class="status-card">
+          <p class="status-label">Status do Núcleo</p>
+          <h2 id="status-summary">GAPS: 0/3 • BLOQUEIOS: 0</h2>
+          <p class="status-hint">Atualizações a cada 2s • Simulação determinística</p>
+        </div>
+      </header>
+
+      <main id="root"></main>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
