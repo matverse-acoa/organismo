@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  qdoi-emitter:
+    build: .
+    environment:
+      - QDS_API=${QDS_API}
+      - POLE_REGISTRY=${POLE_REGISTRY}
+      - ZENODO_TOKEN=${ZENODO_TOKEN}
+      - MATVERSE_LEDGER=${MATVERSE_LEDGER}
+    volumes:
+      - ./datasets:/app/datasets
+    command: python run_qdoi_emission.py
+
+  qdoi-api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db/matverse
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: matverse
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -630,3 +630,55 @@ python pqc_sign_mldsa.py output/first_breath_report.json  # gera pqcSig
 - assinatura PQC anexada
 - receipt com todos os campos ≠ None
 - replay possível por qualquer terceiro
+
+---
+
+## 14. Q-DOI (DOI quântico soberano)
+
+O MatVerse também define um pipeline executável para emissão de **Q-DOI**, um DOI lastreado em evidência quântica verificável. A emissão é estritamente condicionada a:
+
+- **F ≥ 0.95** (fidelidade alta)
+- **QBER ≤ 0.05** (baixo erro)
+- **IIRQ+ ≥ 1.0** (métrica quântica holística)
+- **Ω-Gate = PASS**
+- **Registro Q-PoLE on-chain**
+- **Dataset público (Zenodo)**
+- **Fingerprint criptográfico imutável**
+
+Se qualquer requisito falhar, o Q-DOI não é emitido.
+
+### 14.1 Pipeline de emissão
+
+```
+QDS → IIRQ+ → Ω-Gate → Q-PoLE → Blockchain → Zenodo → Q-DOI
+```
+
+### 14.2 Executando o emissor
+
+Pré-requisitos:
+
+- Python 3.9+
+- Token do Zenodo
+- Endpoints de QDS, Q-PoLE e ledger MatVerse
+
+Configuração básica:
+
+```bash
+export QDS_API="https://quantum-dynamics-suite.example.com/api"
+export POLE_REGISTRY="https://pole.matverse.org/register"
+export ZENODO_TOKEN="seu_token_aqui"
+export MATVERSE_LEDGER="https://ledger.matverse.org"
+```
+
+Execução:
+
+```bash
+python run_qdoi_emission.py
+```
+
+### 14.3 Artefatos do Q-DOI
+
+- `qdoi_emitter.py`: núcleo do pipeline de emissão.
+- `run_qdoi_emission.py`: script de execução.
+- `QDOIRegistry.sol`: contrato de registro do Q-DOI on-chain.
+- `docker-compose.yml`: orquestração de serviços para emissão.
