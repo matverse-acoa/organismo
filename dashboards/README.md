@@ -11,4 +11,4 @@ python -m http.server 8000
 
 Abra `http://localhost:8000` no navegador.
 
-> Observação: a simulação de dados é determinística apenas no ritmo (2s), mas os valores são gerados por variação estocástica para demonstrar a UI.
+> Observação: a simulação usa um gerador pseudoaleatório determinístico (seed fixa) para manter as mesmas trajetórias em cada execução, mantendo o ritmo de 2s entre atualizações.
