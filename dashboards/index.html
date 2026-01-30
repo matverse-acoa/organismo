@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MatVerse | Dashboard de Métricas</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div>
+          <p class="eyebrow">MatVerse Gap Resolution Package</p>
+          <h1>Dashboard vivo de Ψ, Ω, α e CVaR</h1>
+          <p class="subtitle">
+            Monitoramento em tempo real da coerência, viabilidade, antifragilidade e risco de cauda.
+          </p>
+        </div>
+        <div class="status-card">
+          <p class="status-label">Status do Núcleo</p>
+          <h2 id="status-summary">GAPS: 0/3 • BLOQUEIOS: 0</h2>
+          <p class="status-hint">Atualizações a cada 2s • Simulação determinística</p>
+        </div>
+      </header>
+
+      <main id="root"></main>
+    </div>
+
+    <script type="text/babel">
+      const { useEffect, useMemo, useRef, useState } = React;
+
+      const statePalette = {
+        OBSERVE: "#60a5fa",
+        STABILIZE: "#34d399",
+        EXPAND: "#fbbf24",
+        DEFEND: "#f87171",
+      };
+
+      const initialMetrics = {
+        psi: 0.282,
+        omega: 0.884,
+        alpha: 1.031,
+        cvar: 0.738,
+      };
+
+      const maxPoints = 30;
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      function formatPercent(value) {
+        return `${(value * 100).toFixed(1)}%`;
+      }
+
+      function formatValue(value) {
+        return value.toFixed(3);
+      }
+
+      function buildSeedSeries() {
+        return Array.from({ length: maxPoints }, (_, index) => index - maxPoints + 1);
+      }
+
+      function generateStateTransition(previousState) {
+        const states = Object.keys(statePalette);
+        const nextIndex = Math.floor(Math.random() * states.length);
+        const nextState = states[nextIndex];
+        return nextState === previousState ? states[(nextIndex + 1) % states.length] : nextState;
+      }
+
+      function App() {
+        const [metrics, setMetrics] = useState(initialMetrics);
+        const [history, setHistory] = useState({
+          labels: buildSeedSeries(),
+          psi: Array(maxPoints).fill(initialMetrics.psi),
+          omega: Array(maxPoints).fill(initialMetrics.omega),
+          alpha: Array(maxPoints).fill(initialMetrics.alpha),
+          cvar: Array(maxPoints).fill(initialMetrics.cvar),
+        });
+        const [transitions, setTransitions] = useState([
+          { state: "OBSERVE", at: new Date().toLocaleTimeString("pt-BR") },
+        ]);
+
+        const lineChartRef = useRef(null);
+        const barChartRef = useRef(null);
+        const lineChart = useRef(null);
+        const barChart = useRef(null);
+
+        const stateCounts = useMemo(() => {
+          return transitions.reduce((acc, item) => {
+            acc[item.state] = (acc[item.state] || 0) + 1;
+            return acc;
+          }, {});
+        }, [transitions]);
+
+        useEffect(() => {
+          const interval = setInterval(() => {
+            setMetrics((prev) => {
+              const psi = clamp(prev.psi + (Math.random() - 0.5) * 0.02, 0.24, 0.42);
+              const omega = clamp(prev.omega + (Math.random() - 0.5) * 0.03, 0.72, 0.95);
+              const alpha = clamp(prev.alpha + (Math.random() - 0.5) * 0.015, 0.98, 1.08);
+              const cvar = clamp(prev.cvar + (Math.random() - 0.5) * 0.025, 0.62, 0.82);
+              return { psi, omega, alpha, cvar };
+            });
+          }, 2000);
+
+          return () => clearInterval(interval);
+        }, []);
+
+        useEffect(() => {
+          setHistory((prev) => {
+            const timestamp = new Date().toLocaleTimeString("pt-BR");
+            const updateSeries = (series, value) => [...series.slice(1), value];
+
+            return {
+              labels: [...prev.labels.slice(1), timestamp],
+              psi: updateSeries(prev.psi, metrics.psi),
+              omega: updateSeries(prev.omega, metrics.omega),
+              alpha: updateSeries(prev.alpha, metrics.alpha),
+              cvar: updateSeries(prev.cvar, metrics.cvar),
+            };
+          });
+
+          setTransitions((prev) => {
+            const nextState = generateStateTransition(prev[0]?.state || "OBSERVE");
+            const nextEntry = { state: nextState, at: new Date().toLocaleTimeString("pt-BR") };
+            return [nextEntry, ...prev].slice(0, 6);
+          });
+        }, [metrics]);
+
+        useEffect(() => {
+          if (!lineChartRef.current || !barChartRef.current) {
+            return;
+          }
+
+          if (lineChart.current) {
+            lineChart.current.destroy();
+          }
+          if (barChart.current) {
+            barChart.current.destroy();
+          }
+
+          const lineContext = lineChartRef.current.getContext("2d");
+          lineChart.current = new Chart(lineContext, {
+            type: "line",
+            data: {
+              labels: history.labels,
+              datasets: [
+                {
+                  label: "Ψ Coerência",
+                  data: history.psi,
+                  borderColor: "#60a5fa",
+                  backgroundColor: "rgba(96, 165, 250, 0.2)",
+                  tension: 0.3,
+                },
+                {
+                  label: "Ω Viabilidade",
+                  data: history.omega,
+                  borderColor: "#34d399",
+                  backgroundColor: "rgba(52, 211, 153, 0.2)",
+                  tension: 0.3,
+                },
+                {
+                  label: "α Antifragilidade",
+                  data: history.alpha,
+                  borderColor: "#fbbf24",
+                  backgroundColor: "rgba(251, 191, 36, 0.2)",
+                  tension: 0.3,
+                },
+                {
+                  label: "CVaR",
+                  data: history.cvar,
+                  borderColor: "#f87171",
+                  backgroundColor: "rgba(248, 113, 113, 0.2)",
+                  tension: 0.3,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { labels: { color: "#e2e8f0" } },
+              },
+              scales: {
+                x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148, 163, 184, 0.1)" } },
+                y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148, 163, 184, 0.1)" } },
+              },
+            },
+          });
+
+          const barContext = barChartRef.current.getContext("2d");
+          barChart.current = new Chart(barContext, {
+            type: "bar",
+            data: {
+              labels: Object.keys(statePalette),
+              datasets: [
+                {
+                  label: "Transições",
+                  data: Object.keys(statePalette).map((state) => stateCounts[state] || 0),
+                  backgroundColor: Object.keys(statePalette).map((state) => statePalette[state]),
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+              },
+              scales: {
+                x: { ticks: { color: "#94a3b8" }, grid: { display: false } },
+                y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148, 163, 184, 0.1)" } },
+              },
+            },
+          });
+        }, [history, stateCounts]);
+
+        return (
+          <div className="grid">
+            <section className="card metric-card">
+              <h3>Ψ Coerência</h3>
+              <p className="metric-value">{formatPercent(metrics.psi)}</p>
+              <p className="metric-sub">Ψ index: {formatValue(metrics.psi)}</p>
+            </section>
+            <section className="card metric-card">
+              <h3>Ω Viabilidade</h3>
+              <p className="metric-value">{formatPercent(metrics.omega)}</p>
+              <p className="metric-sub">Score: {formatValue(metrics.omega)}</p>
+            </section>
+            <section className="card metric-card">
+              <h3>α Antifragilidade</h3>
+              <p className="metric-value">{formatValue(metrics.alpha)}</p>
+              <p className="metric-sub">Meta &gt; 1.0</p>
+            </section>
+            <section className="card metric-card">
+              <h3>CVaR</h3>
+              <p className="metric-value">{formatPercent(metrics.cvar)}</p>
+              <p className="metric-sub">Limite crítico: 0.80</p>
+            </section>
+
+            <section className="card chart-card">
+              <div className="card-header">
+                <h3>Trajetória das métricas</h3>
+                <span className="chip">Atualizado: {new Date().toLocaleTimeString("pt-BR")}</span>
+              </div>
+              <div className="chart-wrap">
+                <canvas ref={lineChartRef}></canvas>
+              </div>
+            </section>
+
+            <section className="card transition-card">
+              <div className="card-header">
+                <h3>Transições de estado</h3>
+                <span className="chip">Últimas 6 mudanças</span>
+              </div>
+              <ul className="transition-list">
+                {transitions.map((item, index) => (
+                  <li key={`${item.state}-${item.at}-${index}`}>
+                    <span className="state-pill" style={{ backgroundColor: statePalette[item.state] }}>
+                      {item.state}
+                    </span>
+                    <span className="transition-time">{item.at}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="chart-wrap small">
+                <canvas ref={barChartRef}></canvas>
+              </div>
+            </section>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
