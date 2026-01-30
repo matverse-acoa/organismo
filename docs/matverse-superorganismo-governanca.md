@@ -600,7 +600,14 @@ Intellectual Property, Cryptography, Watermarking, Blockchain, Scientific Publis
 4. **DOI Zenodo**  
    - Zipar (P1 + P2 + assinatura) e publicar; Zenodo gera DOI imutável que fecha a prova P3.
 
-### 13.3 Próxima Ação Única (Linha de Comando)
+### 13.3 Checklist de Resultado “10/10”
+
+- Θ calculado e persistido no receipt.
+- `txHash` registrado e verificável em Sepolia (chain-id 11155111).
+- `pqcSig` anexada ao receipt canônico (ex.: ML-DSA).
+- DOI Zenodo emitido para o pacote P1 + P2 + assinatura.
+
+### 13.4 Próxima Ação Única (Linha de Comando)
 
 ```bash
 # Instala o que falta
@@ -622,10 +629,14 @@ python first_breath.py \
 python pqc_sign_mldsa.py output/first_breath_report.json  # gera pqcSig
 ```
 
-### 13.4 Resultado Esperado Após Execução
+### 13.5 Resultado Esperado Após Execução
 
 - MerkleRoot público
 - txHash on-chain com evento Anchored
 - assinatura PQC anexada
 - receipt com todos os campos ≠ None
 - replay possível por qualquer terceiro
+
+### 13.6 Decisão Operacional
+
+Se preferir ajustar o estimador de ψ antes de selar a prova, isso deve ocorrer antes do passo de ancoragem (`--anchor`). Caso contrário, a sequência acima fecha o estado “10/10” imediatamente após o replay validar a raiz Merkle.
