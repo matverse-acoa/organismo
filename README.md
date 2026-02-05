@@ -2,8 +2,6 @@
 
 ## 1. Declaração Fundacional
 
-# MatVerse — Documento Fundacional
-
 Referência complementar do núcleo existencial: [`docs/matverse-organismo.md`](docs/matverse-organismo.md).
 
 ---
