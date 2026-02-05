@@ -9,6 +9,8 @@ do MatVerse.
 
 Ele explica o sistema a humanos.
 
+Referência complementar do núcleo existencial: [`docs/matverse-organismo.md`](docs/matverse-organismo.md).
+
 ---
 
 ## O que este repositório faz
