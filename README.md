@@ -15,6 +15,9 @@ Referência complementar do núcleo existencial: [`docs/matverse-organismo.md`](
 
 ## O que este repositório faz
 
+Referência complementar do núcleo existencial: [`docs/matverse-organismo.md`](docs/matverse-organismo.md).
+
+
 - Define o modelo civilizacional
 - Consolida a arquitetura macroscópica
 - Documenta o significado do sistema
